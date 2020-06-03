@@ -1,27 +1,22 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
 
+    [Header("Player Stats")]
+    [SerializeField]
+    private int health = 200;
+
+    [Header("Player Movement")]
     [SerializeField]
     private float speed = 10f;
 
     [SerializeField]
-    private float xMin;
-
-    [SerializeField]
-    private float xMax;
-
-    [SerializeField]
-    private float yMin;
-
-    [SerializeField]
-    private float yMax;
-
-    [SerializeField]
     private float padding = 1f;
 
+    [Header("Projectile")]
     [SerializeField]
     private GameObject laser;
 
@@ -31,7 +26,13 @@ public class Player : MonoBehaviour {
     [SerializeField]
     private float projectileFirePeriod = 0.1f;
 
+    private float _xMin;
+    private float _xMax;
+    private float _yMin;
+    private float _yMax;
+
     private Coroutine fireCoroutine;
+
     // Start is called before the first frame update
     void Start() {
         SetUpMoveBoundaries();
@@ -41,6 +42,18 @@ public class Player : MonoBehaviour {
     void Update() {
         Move();
         Fire();
+    }
+
+    private void OnTriggerEnter2D(Collider2D other) {
+        DamageDealer damageDealer = other.GetComponent<DamageDealer>();
+
+        if (damageDealer != null) {
+            health -= damageDealer.Damage;
+
+            if (health <= 0) {
+                Destroy(gameObject);
+            }
+        }
     }
 
     IEnumerator FireContentiously() {
@@ -66,8 +79,8 @@ public class Player : MonoBehaviour {
         float deltaX = Input.GetAxis("Horizontal") * Time.deltaTime * speed;
         float deltaY = Input.GetAxis("Vertical") * Time.deltaTime * speed;
 
-        float xPos = Mathf.Clamp(transform.position.x + deltaX, xMin, xMax);
-        float yPos = Mathf.Clamp(transform.position.y + deltaY, yMin, yMax);
+        float xPos = Mathf.Clamp(transform.position.x + deltaX, _xMin, _xMax);
+        float yPos = Mathf.Clamp(transform.position.y + deltaY, _yMin, _yMax);
 
         transform.position = new Vector2(xPos, yPos);
     }
@@ -75,11 +88,11 @@ public class Player : MonoBehaviour {
     private void SetUpMoveBoundaries() {
         Camera gameCamera = Camera.main;
 
-        xMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0)).x + padding;
-        xMax = gameCamera.ViewportToWorldPoint(new Vector3(1, 0)).x - padding;
+        _xMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0)).x + padding;
+        _xMax = gameCamera.ViewportToWorldPoint(new Vector3(1, 0)).x - padding;
 
-        yMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0)).y + padding;
-        yMax = gameCamera.ViewportToWorldPoint(new Vector3(0, 1)).y - padding;
+        _yMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0)).y + padding;
+        _yMax = gameCamera.ViewportToWorldPoint(new Vector3(0, 1)).y - padding;
 
     }
 

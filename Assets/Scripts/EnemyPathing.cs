@@ -6,29 +6,27 @@ using UnityEngine;
 
 public class EnemyPathing : MonoBehaviour {
 
-    [SerializeField]
-    private WaveConfig waveConfig;
-    
+    private WaveConfig _waveConfig;
     private List<Transform> _wayPoints = new List<Transform>();
-
-    [SerializeField]
-    private float moveSpeed = 2f;
-
     private int _wayPointIndex = 0;
 
-    private void Start() {
-        _wayPoints = waveConfig.GetWayPoints().ToList();
+    public void Start() {
+        _wayPoints = _waveConfig.GetWayPoints().ToList();
         transform.position = _wayPoints[_wayPointIndex].transform.position;
     }
 
-    private void Update() {
+    public void Update() {
         Move();
+    }
+
+    public WaveConfig WaveConfig {
+        set => _waveConfig = value;
     }
 
     private void Move() {
         if (_wayPointIndex <= _wayPoints.Count - 1) {
             Vector3 targetPosition = _wayPoints[_wayPointIndex].transform.position;
-            float movementThisFrame = moveSpeed * Time.deltaTime;
+            float movementThisFrame = _waveConfig.MoveSpeed * Time.deltaTime;
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, movementThisFrame);
 
             if (transform.position == targetPosition) {

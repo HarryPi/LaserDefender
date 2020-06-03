@@ -23,6 +23,9 @@ public class Enemy : MonoBehaviour {
     [SerializeField]
     private float projectileSpeed = 5f;
 
+    [SerializeField]
+    private GameObject particles;
+
     public void Start() {
         shotcounter = Random.Range(minTimeBetweenShots, maxTimeBetweenShots);
     }
@@ -51,6 +54,8 @@ public class Enemy : MonoBehaviour {
             health -= damageComponent.Damage;
             damageComponent.Hit();
             if (health <= 0) {
+                GameObject explosionParticles = Instantiate(particles, transform.position, Quaternion.identity);
+                Destroy(explosionParticles, explosionParticles.GetComponent<ParticleSystem>().main.duration);
                 Destroy(gameObject);
             }
         }
